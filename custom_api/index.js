@@ -3,7 +3,7 @@ import bodyParser from "body-parser";
 
 const app = express();
 const port = 3000;
-
+const masterKey = "4VGP2DN-6EWM4SJ-N6FGRHV-Z3PR3TT";
 
 app.use(bodyParser.urlencoded({ extended: true }));
 
@@ -88,8 +88,29 @@ app.patch('/jokes/:id', (req, res) => {
 })
 
 //7. DELETE Specific joke
+app.delete('/jokes/:id', (req, res) => {
+  const jokeID = parseInt(req.params.id);
+  const foundJokeIndex = jokes.findIndex(joke => joke.id === jokeID);
+
+  if(foundJokeIndex > -1) {
+    jokes.splice(foundJokeIndex, 1);
+    res.sendStatus(200);
+  } else {
+    res.status(404).json('Joke not found');
+  }
+})
 
 //8. DELETE All jokes
+app.delete('/jokes/all', (req, res) => {
+  const userKey = req.query.key;
+
+  if(userKey === masterKey) {
+    jokes = [];
+    res.sendStatus(200);
+  } else {
+    res.status(404).json('You do not have permission to delete all jokes');
+  }
+})
 
 app.listen(port, () => {
   console.log(`Successfully started server on port ${port}.`);
