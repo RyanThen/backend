@@ -3,7 +3,7 @@ import bodyParser from "body-parser";
 
 const app = express();
 const port = 3000;
-
+const masterKey = "4VGP2DN-6EWM4SJ-N6FGRHV-Z3PR3TT";
 
 app.use(bodyParser.urlencoded({ extended: true }));
 
@@ -35,10 +35,57 @@ app.get('/filter', (req, res) => {
 });
 
 //4. POST a new joke
+app.post('/jokes', (req, res) => {
+  const jokeText = req.body.text;
+  const jokeType = req.body.type;
+
+  const newJoke = {
+    id: jokes.length + 1,
+    jokeText: jokeText,
+    jokeType: jokeType
+  }
+
+  jokes.push(newJoke);
+
+  res.json(jokes.slice(-1));
+})
 
 //5. PUT a joke
+app.put('/jokes/:id', (req, res) => {
+  const jokeID = parseInt(req.params.id);
+  const jokeText = req.body.text;
+  const jokeType = req.body.type;
+
+  const editedJokeData = {
+    id: jokeID,
+    jokeText: jokes[jokeID].jokeText,
+    jokeType: jokes[jokeID].jokeType
+  }
+
+  const editJokeID = jokes.findIndex(joke => joke.id === jokeID);
+
+  jokes[editJokeID] = editedJokeData;
+
+  res.json(jokes[editJokeID]);
+})
 
 //6. PATCH a joke
+app.patch('/jokes/:id', (req, res) => {
+  const jokeID = parseInt(req.params.id);
+  const existingJoke = jokes.find(joke => joke.id === jokeID);
+
+  const replacementJokeData = {
+    id: jokeID,
+    jokeText: req.body.text || existingJoke.jokeText,
+    jokeType: req.body.type || existingJoke.jokeType,
+  }
+
+  const editJokeIndex = jokes.findIndex(joke => joke.id === jokeID);
+
+  jokes[editJokeIndex] = replacementJokeData;
+
+  res.json(replacementJokeData);
+})
 
 //7. DELETE Specific joke
 
